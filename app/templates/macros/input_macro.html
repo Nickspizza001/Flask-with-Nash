@@ -1,0 +1,13 @@
+{% macro input(label='', type='text', name='', placeholder='', id='') -%}
+      <div class="form-group">
+        <label for="{{ name }}">{{ label }}</label>
+        <input
+          class="form-control"
+          type="{{ type }}"
+          name="{{ name }}"
+          id="{{ id }}"
+          ,
+          placeholder="{{ placeholder }}"
+        />
+      </div>
+      {%- endmacro %} 
