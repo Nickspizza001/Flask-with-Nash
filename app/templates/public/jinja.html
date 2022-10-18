@@ -1,0 +1,102 @@
+{% extends 'public/templates/public_template.html' %} {% block title %}Jinja{%
+endblock %} 
+{% block main %}
+
+{% import "macros/input_macro.html" as im %}
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h1>Jinja templates</h1>
+      <br />
+      <h4>Variables</h4>
+      <br />
+      <h1>{{ myName }}</h1>
+      <ul>
+        {% for name in listExa %}
+        <li>{{name}}</li>
+
+        {% endfor %}
+      </ul>
+      <h4>to loop with index</h4>
+      {% for name in listExa %}
+      <li>{{ loop.index }}: {{name}}</li>
+
+      {% endfor %}
+      <h4>to loop a dictionary</h4>
+      {% for k,v in friends.items() %}
+      <li>{{ loop.index }} {{ k }}: {{ v }}</li>
+
+      {% endfor %}
+
+      <h4>to loop dictionary keys</h4>
+      {% for key in friends.keys() %}
+      <li>{{ loop.index }}: {{ key }}</li>
+
+      {% endfor %}
+
+      <h4>Access list members</h4>
+      <p>{{ listExa[0] }}</p>
+
+      <h4>Access dict members</h4>
+      <p>{{ friends['Dami'] }}</p>
+
+      <h4>Access class attributes</h4>
+      <p>{{ myRemote.name }}</p>
+
+      <h4>Unpack Variables</h4>
+      <br />
+      {% set a,b, c = listExa %}
+      <p>{{a}}</p>
+      <p>{{b}}</p>
+      <p>{{c}}</p>
+
+      <h4>Call a function</h4>
+      <p>{{ repeat('Flask is awesome', 4) }}</p>
+
+      <h4>Call a class method</h4>
+      <p>{{ myRemote.clone() }}</p>
+
+      <h4>Conditional</h4>
+      {% if cool %}
+      <p>Cool is {{ cool }}</p>
+      {% endif %}
+
+      <h4>Conditional comparison</h4>
+      {% if intExa > 6 %}
+      <p>Okayy</p>
+
+      {% elif intExa < 6%}
+      <p>Less</p>
+      {% else %}
+      <p>equal</p>
+      {% endif %}
+
+      <h4>Template filters</h4>
+      <br />
+      <p>{{ listExa|length}}</p>
+      <p>{{ myName|reverse}}</p>
+      <p>{{ myName|upper}}</p>
+      <h4>Template filters - join</h4>
+
+      <p>{{ listExa|join(', ')}}</p>
+
+      <h4>Custom filters</h4>
+      <p>{{date|clean_date}}</p>
+
+      <h4>Escaping</h4>
+      <br />
+      <p>{{ myHtml| safe}}</p>
+      <p>{{ suspicious|safe }}</p>
+
+      <h4>Macro</h4>
+      <br />
+      
+       {{im.input(label='Your name', type='name', id='name',placeholder='please enter your name')}}
+       {{im.input(label='Age', type='number', id='age', placeholder='please enter your age')}}
+       {{im.input(label='Password', type='password', id='password', placeholder='please enter your password')}}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
