@@ -7,15 +7,10 @@ endblock %} {% block main %}
       <hr />
       <div class="card">
         <div class="card-body">
-          <h4>{{ username }}</h4>
+          <h4>{{ user["username"] }}</h4>
           <hr />
-          {% if error %}
-          <p><strong>{{ error }}</strong></p>
-          {% else %}
-          <p><strong>{{user['Name']}}</strong></p>
-          <p class="text-muted">{{ user['bio'] }}</p>
-          <p><em>{{user['twitter_handle'] }}</em></p>
-          {% endif %}
+         <p>{{ user['email']}}</p>
+         <p class="text-muted">{{user['bio']}}</p>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 from app import app
-from flask import render_template, request, redirect, jsonify, make_response
+from flask import render_template, request, redirect, jsonify, make_response, abort
 from datetime import datetime
 import os
 
@@ -14,6 +14,9 @@ def clean_date(dt):
 
 @app.route('/')
 def index():
+    abort(500)
+    
+
     app.config['ENV']= 'development'
     #print(app.config)
     
@@ -75,18 +78,18 @@ def about():
     return render_template('public/about.html')
 
 
-@app.route('/sign-up', methods=['GET', 'POST'])
-def sign_up():
+# @app.route('/sign-up', methods=['GET', 'POST'])
+# def sign_up():
 
-    if request.method == 'POST':
-        req = request.form
-        username = req['username']
-        email = req['email']
-        password = req['password']
+#     if request.method == 'POST':
+#         req = request.form
+#         username = req['username']
+#         email = req['email']
+#         password = req['password']
 
-        print(username,email,password)
-        return redirect(request.url)
-    return render_template("public/signUp.html")
+#         print(username,email,password)
+#         return redirect(request.url)
+#     return render_template("public/signUp.html")
 
 users = {
     "Ibadan":{
@@ -107,18 +110,6 @@ users = {
 }
 
 
-@app.route('/profile/<username>')#dynamic url
-def user_profile(username):
-    user = None
-    username = username
-    error = None
-
-    if username in users:
-        user = users[username]
-    else:
-        error = "No user with this name " + username
-    
-    return render_template('public/profile.html', user=user, username=username, error = error)
 
 @app.route('/multiple/<foo>/<bar>/<baz>')
 def multi(foo,bar,baz):
@@ -218,3 +209,136 @@ def uploadImage():
             return redirect(request.url)
 
     return render_template("public/upload_image.html")
+
+    
+# converters
+# 1. int
+# 2. string
+# 3. float
+# 4. path
+# 5. uuid
+
+app.config['CLIENT_IMAGES']= "C:/Users/Damilola/Documents/Python Scripts/Flask by nash/app/static/client/image"
+
+from flask import send_from_directory, abort
+@app.route('/get-image/<img_name>')
+def getImage(img_name):
+    try:
+        return send_from_directory(app.config['CLIENT_IMAGES'], img_name, as_attachment= True)
+
+    except FileNotFoundError:
+        abort(404)
+
+
+app.config['CLIENT_CSV']= "C:/Users/Damilola/Documents/Python Scripts/Flask by nash/app/static/client/csv"
+@app.route('/get-csv/<file_name>')
+def getCsv(file_name):
+    try:
+        return send_from_directory(app.config['CLIENT_CSV'], file_name, as_attachment= False)
+
+    except FileNotFoundError:
+        abort(404)
+
+
+app.config['CLIENT_REPORT']= "C:/Users/Damilola/Documents/Python Scripts/Flask by nash/app/static/client/reports"
+@app.route('/get-report/<path:path>')
+def getReport(path):
+    try:
+        return send_from_directory(app.config['CLIENT_REPORT'], path, as_attachment= False)
+
+    except FileNotFoundError:
+        abort(404)
+
+@app.route('/cookies')
+def cookie():
+    res = make_response("Cookiess", 200)
+
+    cookies = request.cookies
+    flavor = cookies.get('Flavour')
+    choc_type = cookies.get('Chocolate type')
+    cherry = cookies.get('cherry')
+
+
+    print(flavor, choc_type, cherry)
+    res.set_cookie("Flavour","Chocolate", max_age=10, expires=None, path=request.path,domain=None,secure=False,httponly=False )
+    
+    res.set_cookie("Chocolate type", "Dark")
+    res.set_cookie("cherry", 'Yes')
+    return res
+from flask import session, url_for
+app.config['SECRET_KEY']= 'ptjBlAb__qNe61sFbv8pGA'
+
+
+users = {
+    "Julian":{
+        'username': "Julian",
+        'email': "julian@gmail.com",
+        "password": "111111",
+        "bio": "Some random guy"
+    },
+    "Damilola":{
+       'username': "Damilola",
+        'email': "dami@gmail.com",
+        "password": "111111",
+        "bio": "Another random guy"
+    }
+}
+@app.route("/signin", methods= ['POST', 'GET'])
+def sign_in():
+    if request.method == 'POST':
+        req  = request.form
+        username = req.get('username')
+        password = req.get('password')
+
+        if not username in users:
+            print("Username not found")
+            return redirect(request.url)
+        else:
+            user = users[username]
+
+        if not password == user['password']:
+            print("Password incorrect")
+            return redirect(request.url)
+        else: 
+            session['USERNAME'] = user['username']
+            session['PASSWORD'] = user['password']
+            print(session)
+            print("User added to session")
+            return redirect(url_for('user_profile'))#Note this take in the function name, not the route
+        print(username, password)
+    return render_template("public/signIn.html")
+
+
+@app.route("/profile")
+def user_profile():
+    if session.get('USERNAME', None) is not None:
+        username = session.get('USERNAME')
+        user = users[username]
+
+        return render_template("public/profile.html", user = user)
+    else:
+        print("username is not found")
+        return redirect(url_for('sign_in'))
+
+@app.route('/sign-out')
+def signout():
+    session.pop('USERNAME', None)
+    return redirect(url_for('sign_in'))
+from flask import flash
+
+
+@app.route('/sign-up', methods= ['GET', 'POST'])
+def sign_up():
+    if request.method == 'POST':
+        req = request.form
+        username = req.get('username')
+        email = req.get('email')
+        password = req.get('password')
+        print("hello")
+        print(len(password))
+        if not len(password) >= 10: 
+            flash("password must be at least 10 characters", 'warning')
+            return redirect(request.url)
+        flash("Account created", 'success')
+        return redirect(request.url)
+    return render_template("public/signUp.html")
